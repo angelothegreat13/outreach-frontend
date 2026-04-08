@@ -2,8 +2,18 @@
 
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import Link from "next/link";
 import { useState, FormEvent } from "react";
+import { Loader2 } from "lucide-react";
 
 export default function RegisterPage() {
   const { register } = useAuth({
@@ -16,9 +26,11 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     await register({
       name,
       email,
@@ -26,101 +38,87 @@ export default function RegisterPage() {
       password_confirmation: passwordConfirmation,
       setErrors,
     });
+    setIsLoading(false);
   };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold tracking-tight">Register</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Create your Outreach account
-      </p>
+    <Card>
+      <CardHeader>
+        <CardTitle>Register</CardTitle>
+        <CardDescription>Create your Outreach account</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              autoFocus
+            />
+            {errors.name && (
+              <p className="text-sm text-destructive">{errors.name[0]}</p>
+            )}
+          </div>
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium">
-            Name
-          </label>
-          <input
-            id="name"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
-            required
-            autoFocus
-          />
-          {errors.name && (
-            <p className="mt-1 text-sm text-destructive">{errors.name[0]}</p>
-          )}
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            {errors.email && (
+              <p className="text-sm text-destructive">{errors.email[0]}</p>
+            )}
+          </div>
 
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
-            required
-          />
-          {errors.email && (
-            <p className="mt-1 text-sm text-destructive">{errors.email[0]}</p>
-          )}
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            {errors.password && (
+              <p className="text-sm text-destructive">{errors.password[0]}</p>
+            )}
+          </div>
 
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
-            required
-          />
-          {errors.password && (
-            <p className="mt-1 text-sm text-destructive">
-              {errors.password[0]}
-            </p>
-          )}
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="password_confirmation">Confirm Password</Label>
+            <Input
+              id="password_confirmation"
+              type="password"
+              value={passwordConfirmation}
+              onChange={(e) => setPasswordConfirmation(e.target.value)}
+              required
+            />
+          </div>
 
-        <div>
-          <label
-            htmlFor="password_confirmation"
-            className="block text-sm font-medium"
-          >
-            Confirm Password
-          </label>
-          <input
-            id="password_confirmation"
-            type="password"
-            value={passwordConfirmation}
-            onChange={(e) => setPasswordConfirmation(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
-            required
-          />
-        </div>
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading && <Loader2 className="size-4 animate-spin" />}
+            Register
+          </Button>
 
-        <Button type="submit" className="w-full">
-          Register
-        </Button>
-
-        <p className="text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
-          <Link
-            href="/login"
-            className="font-medium text-foreground hover:underline"
-          >
-            Log in
-          </Link>
-        </p>
-      </form>
-    </div>
+          <p className="text-center text-sm text-muted-foreground">
+            Already have an account?{" "}
+            <Link
+              href="/login"
+              className="font-medium text-foreground hover:underline"
+            >
+              Log in
+            </Link>
+          </p>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
